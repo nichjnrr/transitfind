@@ -1,0 +1,189 @@
+// src/app/(dashboard)/report-lost/page.tsx
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+const CATEGORIES = [
+  "WALLET", "PHONE", "KEYS", "BAG", "CLOTHING",
+  "ELECTRONICS", "DOCUMENTS", "JEWELLERY", "UMBRELLA", "OTHER",
+];
+
+const TRANSPORT_MODES = ["MRT", "BUS", "LRT", "INTERCHANGE"];
+
+export default function ReportLostPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "",
+    transportMode: "",
+    location: "",
+    dateTimeOfLoss: "",
+    contactEmail: "",
+  });
+
+  const set = (field: string, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Submission failed");
+        return;
+      }
+      toast.success("Lost item report submitted!");
+      router.push("/dashboard");
+    } catch {
+      toast.error("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em" }}>
+          Report a Lost Item
+        </h1>
+        <p style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 14 }}>
+          Fill in as many details as possible to help us find a match.
+        </p>
+      </div>
+
+      <div className="card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Item Title *</label>
+            <input
+              className="form-input"
+              placeholder="e.g. Blue Samsung Galaxy S24"
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Description *</label>
+            <textarea
+              className="form-input"
+              placeholder="Describe the item in detail — colour, brand, markings, contents, etc."
+              rows={4}
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+              required
+              style={{ resize: "vertical" }}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="form-group">
+              <label className="form-label">Category *</label>
+              <select
+                className="form-input"
+                value={form.category}
+                onChange={(e) => set("category", e.target.value)}
+                required
+              >
+                <option value="">Select category</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c.charAt(0) + c.slice(1).toLowerCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Transport Mode *</label>
+              <select
+                className="form-input"
+                value={form.transportMode}
+                onChange={(e) => set("transportMode", e.target.value)}
+                required
+              >
+                <option value="">Select mode</option>
+                {TRANSPORT_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Location / Station / Route *</label>
+            <input
+              className="form-input"
+              placeholder="e.g. EW14 Clementi MRT, or Bus 96 near Bedok"
+              value={form.location}
+              onChange={(e) => set("location", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Date & Time of Loss *</label>
+            <input
+              className="form-input"
+              type="datetime-local"
+              value={form.dateTimeOfLoss}
+              onChange={(e) => set("dateTimeOfLoss", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Contact Email *</label>
+            <input
+              className="form-input"
+              type="email"
+              placeholder="For finder to contact you"
+              value={form.contactEmail}
+              onChange={(e) => set("contactEmail", e.target.value)}
+              required
+            />
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              justifyContent: "flex-end",
+              marginTop: 8,
+              paddingTop: 16,
+              borderTop: "1px solid var(--border)",
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Submitting…" : "Submit Report"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
