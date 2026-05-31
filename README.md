@@ -1,4 +1,5 @@
 # TransitFind
+
 ### A Centralized Lost & Found Platform for Singapore Public Transport
 
 **Orbital 26 · CP2106 · AY2025/2026 Special Term**
@@ -6,7 +7,7 @@
 | | |
 |---|---|
 | **Team Name** | TransitFind |
-| **Proposed Level of Achievement** | Gemini |
+| **Proposed Level of Achievement** | Apollo |
 | **Members** | A0320787X, A0320130H |
 | **Adviser** | TBC |
 | **Milestone** | 1 — Ideation |
@@ -23,8 +24,9 @@
 6. [Tech Stack](#6-tech-stack)
 7. [Software Engineering Practices](#7-software-engineering-practices)
 8. [Technical Proof of Concept](#8-technical-proof-of-concept)
-9. [Development Timeline](#9-development-timeline)
-10. [Project Log](#10-project-log)
+9. [UI Considerations](#9-ui-considerations)
+10. [Development Timeline](#10-development-timeline)
+11. [Project Log](#11-project-log)
 
 ---
 
@@ -44,6 +46,7 @@ Today, a commuter who loses an item faces a fragmented, confusing process. Singa
 Each operator maintains its own lost-and-found portal, phone number, and physical collection office. A commuter who isn't sure which operator runs the bus or MRT line they were on — which is an extremely common situation — must attempt to contact multiple offices before finding the right one.
 
 **This creates a multi-layered problem:**
+
 - Commuters often don't know which operator to contact
 - Each operator's portal has a different interface and submission process
 - Response times vary wildly across operators
@@ -63,6 +66,7 @@ There is also a **mismatch problem**: someone may have lost a wallet on a bus an
 We aim to build **TransitFind**, a centralized web platform that acts as a one-stop lost-and-found hub for all public transport in Singapore.
 
 Our platform provides a single interface for:
+
 - **Reporting a lost item** — with transport mode, route, location, time, and description
 - **Reporting a found item** — by passengers or transport workers
 - **Searching and filtering** — across all reports by category, mode, date, location, or keyword
@@ -70,6 +74,7 @@ Our platform provides a single interface for:
 - **Contacting the other party** — once a match is identified
 
 ### Why now?
+
 No unified platform of this kind currently exists in Singapore. GovTech's OneService app does not cover lost and found for public transport. Each operator's system is siloed. The gap is real, the need is clear, and the technical tools to solve it are available.
 
 ---
@@ -99,65 +104,118 @@ Our features are scoped across three milestones, following **iterative developme
 
 | # | Feature | Description | Target Milestone | Core / Extension |
 |---|---|---|---|---|
-| 1 | User Authentication | Register, login, logout with secure password hashing | M1 | Core |
-| 2 | Lost Item Reporting | Submit a lost item report with all relevant fields | M1 | Core |
-| 3 | Browse & Search | View all lost item reports with keyword and filter search | M1 | Core |
-| 4 | Found Item Reporting | Submit a found item report | M2 | Core |
-| 5 | User Dashboard | View and manage your own submitted reports | M2 | Core |
-| 6 | Heuristic Matching | Score and surface potential matches between lost and found reports | M2 | Core |
-| 7 | Email Notifications | Notify users when a potential match is found | M3 | Extension |
-| 8 | Admin Dashboard | Moderate reports, close resolved cases | M3 | Extension |
+| 1 | Lost Item Reporting | Multi-field validated form with controlled React state, enum-constrained inputs, and authenticated API submission | M1 | Core |
+| 2 | Browse & Search | Dynamic server-side filtering with programmatic WHERE clause construction and URL-based filter state | M1 | Core |
+| 3 | Found Item Reporting | Submit a found item report with parallel data model | M2 | Core |
+| 4 | User Dashboard | View and manage your own submitted reports with status tracking | M2 | Core |
+| 5 | Heuristic Matching | Weighted multi-attribute scoring algorithm to rank potential matches between lost and found reports | M2 | Core |
+| 6 | Email Notifications | Notify users when a potential match is found | M3 | Extension |
+| 7 | Admin Dashboard | Moderate reports, close resolved cases | M3 | Extension |
 
-> **Note on Gemini scope:** Gemini requires 3–5 features of sufficient complexity. Our core three (Auth, Reporting, Browse/Search) each involve non-trivial logic: auth requires password hashing + session management + JWT; reporting involves multi-field validation + database writes; browse involves dynamic query construction with filters.
 
 ---
 
-### Feature 1 — User Authentication
+### Feature 1 — Lost Item Report Submission
 
-**Complexity justification:** Authentication involves multiple distinct technical components working together:
-- Credentials-based login using **NextAuth.js** with JWT session strategy
-- Password hashing with **bcryptjs** (12 salt rounds) — plain text passwords are never stored
-- Server-side session validation on protected routes using `getServerSession`
-- Type-safe session with custom NextAuth type declarations
-- Redirect flows for unauthenticated users attempting to access protected pages
-- Error handling with meaningful messages (wrong password vs. no account vs. server error)
+**What it does:** Authenticated users submit a structured report describing their lost item, including category, transport mode, location, and time of loss.
 
-**Implementation:**
-- `POST /api/register` — validates input, hashes password, creates user in PostgreSQL via Prisma
-- `POST /api/auth/[...nextauth]` — NextAuth credential provider validates login
-- Session persisted via JWT cookie
-- Protected layout (`(dashboard)/layout.tsx`) redirects unauthenticated users to `/login`
+**Technical complexity — this is more than an HTML form:**
 
----
+The report form is a fully controlled React component with TypeScript-typed state, not a plain HTML form submission. Each field is tracked in a `useState` hook, validated on the client before the request is made, and then validated again on the server before any database write occurs. This multi-layer approach means invalid data is rejected at three distinct points: the React component, the API route, and the Prisma/PostgreSQL layer.
 
-### Feature 2 — Lost Item Report Submission
-
-**Complexity justification:** This feature involves a multi-field validated form with:
-- 7 required fields with distinct validation rules
-- Enum-constrained inputs (category, transport mode) mapped to database enum types
-- `datetime-local` input parsed and stored as proper UTC timestamps
-- Authenticated-only endpoint — unauthenticated submissions return 401
-- Client-side state management with controlled inputs
-- Toast notifications for success/error feedback
+- **Controlled inputs with typed state:** Every field is bound to a typed `useState` variable. Changing any input triggers a re-render of only the affected component, not the whole page — this is React's reactive model in practice.
+- **Enum-constrained fields:** `category` and `transportMode` are TypeScript enums that map directly to PostgreSQL enum types via Prisma. The UI renders these as `<select>` elements populated programmatically from the enum values, so it's impossible to submit an invalid category — it's enforced at the component, API, and database levels simultaneously.
+- **`datetime-local` → UTC conversion:** The browser's `datetime-local` input returns a locale-sensitive string. The API route parses this into a proper UTC `DateTime` before storing it in PostgreSQL, ensuring consistent time handling regardless of the user's timezone.
+- **Authenticated-only endpoint:** The `POST /api/items` route calls `getServerSession` before processing any data. Unauthenticated requests are rejected with HTTP 401. The form is integrated into the session system, not isolated from it.
+- **Async feedback with toast notifications:** On submit, the form awaits a `fetch()` call and handles different HTTP status codes differently — displaying targeted error messages (e.g. "Please fill in all required fields" vs. "Something went wrong, please try again") via `react-hot-toast` without a page reload.
 
 **Fields collected:**
+
 - Title, Description (free text)
 - Category (enum: WALLET, PHONE, KEYS, BAG, CLOTHING, ELECTRONICS, DOCUMENTS, JEWELLERY, UMBRELLA, OTHER)
 - Transport Mode (enum: MRT, BUS, LRT, INTERCHANGE)
 - Location / Station / Route (free text)
-- Date & Time of Loss (datetime-local)
+- Date & Time of Loss (`datetime-local`, stored as UTC)
 - Contact Email
 
 ---
 
-### Feature 3 — Browse & Search
+### Feature 2 — Browse & Search
 
-**Complexity justification:** The browse page supports **dynamic server-side filtering** without client-side JavaScript state:
-- URL search params are used to pass filter state, making results **shareable via URL** (addresses User Story 8)
-- Prisma WHERE clause is conditionally constructed based on active filters
-- Full-text search across title, description, and location using `contains` with `insensitive` mode
-- Multiple simultaneous filters (keyword + category + transport mode)
-- Results display key metadata with conditional styling (transport mode tags, status badges)
+**What it does:** Users can view all lost item reports and narrow results using keyword search and categorical filters.
+
+**Technical complexity — dynamic query construction and URL-as-state:**
+
+This feature's complexity lies not in displaying data, but in how the query is constructed and how state is managed.
+
+**Programmatic WHERE clause construction:**
+
+Rather than writing a fixed SQL query, the browse API dynamically assembles a Prisma `where` object at runtime based on which filters are active. The structure looks like this conceptually:
+
+```typescript
+const where: Prisma.LostItemWhereInput = {
+  ...(keyword && {
+    OR: [
+      { title: { contains: keyword, mode: 'insensitive' } },
+      { description: { contains: keyword, mode: 'insensitive' } },
+      { location: { contains: keyword, mode: 'insensitive' } },
+    ],
+  }),
+  ...(category && { category: category as ItemCategory }),
+  ...(transportMode && { transportMode: transportMode as TransportMode }),
+};
+```
+
+Each filter is only included if a value is present — inactive filters add no constraint. The keyword search uses an `OR` combinator across three fields simultaneously, so searching "Tampines wallet" can match a title containing "wallet" even if the location field contains "Tampines". This is a deliberate search UX decision: users shouldn't need to know which field their data ended up in.
+
+**URL-as-state (shareable, bookmark-able search results):**
+
+Filter state is encoded in the URL as query parameters, not in React component state. A URL like `/browse?keyword=wallet&category=WALLET&transportMode=MRT` produces the exact same result set for any user. This directly addresses User Story 8 (shareable links) and means:
+
+- No client-side re-fetch is needed on page load — Next.js reads the params server-side and runs the filtered query once
+- Results are reproducible and shareable without any session dependency
+- The browser back button restores the previous filter state for free
+
+**Conditional rendering of result metadata:**
+
+Results are rendered programmatically from the query output. Transport mode tags are color-coded (MRT, BUS, LRT, INTERCHANGE each have a distinct style) and status badges (OPEN, MATCHED, CLOSED) are rendered conditionally based on the item's status field. This means the component never hard-codes which items appear where — it maps over the data and renders each card from its properties.
+
+---
+
+### Feature 5 — Heuristic Matching System *(Milestone 2)*
+
+**What it does:** When a user views a lost item report, the system surfaces the most likely matching found items, ranked by a computed similarity score.
+
+**Algorithm design:**
+
+This is the DSA centrepiece of TransitFind. The matching system implements a **weighted multi-attribute scoring function** that compares a `LostItem` against every `FoundItem` in the database and produces a score from 0–100 for each pair.
+
+```
+matchScore(lostItem, foundItem) → Integer [0, 100]
+
+  Category match (exact):          +40 points
+  Transport mode match (exact):    +20 points
+  Location token overlap:          up to +20 points
+  Time proximity:
+    < 2 hours apart:               +20 points
+    2–6 hours apart:               +10 points
+    6–24 hours apart:              +5 points
+    > 24 hours apart:              +0 points
+
+  Total possible: 100
+```
+
+**Location token overlap** is computed by tokenizing both location strings (splitting on spaces and punctuation, lowercasing, removing stopwords), then computing the Jaccard similarity of the two token sets: `|intersection| / |union|`. This means "Tampines MRT Station Exit A" and "Tampines Interchange" share the token "tampines" and score partial credit, even though they are not an exact string match.
+
+**Algorithmic steps at query time:**
+
+1. Fetch all `FoundItem` records where `transportMode` matches the `LostItem` (pre-filter to reduce scoring candidates)
+2. For each candidate, compute `matchScore(lostItem, foundItem)`
+3. Filter out candidates scoring below a threshold (e.g. < 30)
+4. Sort descending by score — this is an `O(n log n)` sort over the candidate set
+5. Return the top N results to the client
+
+This produces a ranked list rather than a binary match/no-match decision, surfacing the most probable matches first while still showing lower-confidence candidates. The scoring weights are intentionally tunable — category is weighted highest because it is the most discriminating field (a found phone almost certainly isn't a match for a lost wallet), while location overlap is weighted lower because location descriptions are free text and inherently fuzzy.
 
 ---
 
@@ -181,13 +239,14 @@ TransitFind uses a **monolithic full-stack architecture** suitable for Gemini-le
 │  │  (RSC + CSC) │   │  /api/register           ││
 │  │              │   │  /api/auth/[...nextauth]  ││
 │  │  Pages:      │   │  /api/items              ││
-│  │  / (landing) │   └──────────┬───────────────┘│
-│  │  /login      │              │                 │
-│  │  /register   │   ┌──────────▼───────────────┐│
-│  │  /dashboard  │   │        Prisma ORM        ││
-│  │  /report-lost│   └──────────┬───────────────┘│
-│  │  /browse     │              │                 │
-│  └──────────────┘   ┌──────────▼───────────────┐│
+│  │  / (landing) │   │  /api/matches            ││
+│  │  /login      │   └──────────┬───────────────┘│
+│  │  /register   │              │                 │
+│  │  /dashboard  │   ┌──────────▼───────────────┐│
+│  │  /report-lost│   │        Prisma ORM        ││
+│  │  /browse     │   └──────────┬───────────────┘│
+│  └──────────────┘              │                 │
+│                      ┌──────────▼───────────────┐│
 │                      │   PostgreSQL (Supabase)  ││
 │                      └──────────────────────────┘│
 └─────────────────────────────────────────────────┘
@@ -197,36 +256,37 @@ TransitFind uses a **monolithic full-stack architecture** suitable for Gemini-le
 
 ```
 User
-├── id          String (CUID)
-├── name        String
-├── email       String (unique)
-├── password    String (bcrypt hashed)
-├── createdAt   DateTime
-├── lostReports LostItem[]
+├── id           String (CUID)
+├── name         String
+├── email        String (unique)
+├── password     String (bcrypt hashed)
+├── createdAt    DateTime
+├── lostReports  LostItem[]
 └── foundReports FoundItem[]
 
 LostItem
-├── id            String (CUID)
-├── title         String
-├── description   String
-├── category      ItemCategory (enum)
-├── transportMode TransportMode (enum)
-├── location      String
-├── dateTimeOfLoss DateTime
-├── imageUrl      String? (optional)
-├── status        ItemStatus (OPEN | MATCHED | CLOSED)
-├── contactEmail  String
-├── userId        String (FK → User)
-└── createdAt     DateTime
+├── id              String (CUID)
+├── title           String
+├── description     String
+├── category        ItemCategory (enum)
+├── transportMode   TransportMode (enum)
+├── location        String
+├── dateTimeOfLoss  DateTime
+├── imageUrl        String? (optional)
+├── status          ItemStatus (OPEN | MATCHED | CLOSED)
+├── contactEmail    String
+├── userId          String (FK → User)
+└── createdAt       DateTime
 
 FoundItem (parallel structure to LostItem, for M2)
 ├── (same fields, dateTimeFound instead of dateTimeOfLoss)
 └── userId FK → User
 
 Enums:
-  ItemCategory: WALLET | PHONE | KEYS | BAG | CLOTHING | ELECTRONICS | DOCUMENTS | JEWELLERY | UMBRELLA | OTHER
+  ItemCategory:  WALLET | PHONE | KEYS | BAG | CLOTHING | ELECTRONICS
+                 | DOCUMENTS | JEWELLERY | UMBRELLA | OTHER
   TransportMode: MRT | BUS | LRT | INTERCHANGE
-  ItemStatus: OPEN | MATCHED | CLOSED
+  ItemStatus:    OPEN | MATCHED | CLOSED
 ```
 
 ### User Flow
@@ -243,6 +303,9 @@ Report Lost Item:
 
 Browse Items:
   /browse → GET /api/items?keyword=&category=&transportMode= → filter results
+
+View Matches (M2):
+  /item/[id] → GET /api/matches?lostItemId=[id] → ranked found items
 ```
 
 ### File Structure
@@ -250,32 +313,34 @@ Browse Items:
 ```
 transitfind/
 ├── prisma/
-│   └── schema.prisma           # Database schema
+│   └── schema.prisma              # Database schema and enums
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/             # Route group: auth pages (no Navbar)
+│   │   ├── (auth)/                # Route group: auth pages (no Navbar)
 │   │   │   ├── login/
 │   │   │   └── register/
-│   │   ├── (dashboard)/        # Route group: protected pages (with Navbar)
-│   │   │   ├── layout.tsx      # Auth guard + Navbar wrapper
+│   │   ├── (dashboard)/           # Route group: protected pages (with Navbar)
+│   │   │   ├── layout.tsx         # Auth guard + Navbar wrapper
 │   │   │   ├── dashboard/
 │   │   │   ├── report-lost/
 │   │   │   └── browse/
 │   │   ├── api/
 │   │   │   ├── auth/[...nextauth]/  # NextAuth handler
 │   │   │   ├── register/            # Registration endpoint
-│   │   │   └── items/               # Lost items CRUD
-│   │   ├── layout.tsx          # Root layout (Providers)
-│   │   ├── page.tsx            # Landing page
-│   │   ├── providers.tsx       # SessionProvider + Toaster
-│   │   └── globals.css         # Design tokens and utilities
+│   │   │   ├── items/               # Lost items CRUD
+│   │   │   └── matches/             # Heuristic matching endpoint (M2)
+│   │   ├── layout.tsx             # Root layout (Providers)
+│   │   ├── page.tsx               # Landing page
+│   │   ├── providers.tsx          # SessionProvider + Toaster
+│   │   └── globals.css            # Design tokens and utility classes
 │   ├── components/
-│   │   └── Navbar.tsx          # Site-wide navigation
+│   │   └── Navbar.tsx             # Site-wide navigation component
 │   ├── lib/
-│   │   ├── auth.ts             # NextAuth configuration
-│   │   └── prisma.ts           # Prisma singleton
+│   │   ├── auth.ts                # NextAuth configuration
+│   │   ├── prisma.ts              # Prisma singleton (prevents connection pool exhaustion)
+│   │   └── matching.ts            # Heuristic scoring logic (M2)
 │   └── types/
-│       └── next-auth.d.ts      # Session type augmentation
+│       └── next-auth.d.ts         # Session type augmentation
 ├── .env.example
 ├── .gitignore
 ├── next.config.js
@@ -290,29 +355,31 @@ transitfind/
 | Technology | Role | Justification |
 |---|---|---|
 | **Next.js 14** (App Router) | Full-stack framework | Allows frontend + backend in one repo; RSC reduces client bundle; file-based routing is intuitive; Vercel deployment is seamless |
-| **React 18** | UI library | Industry standard; familiar from coursework; RSC support in Next.js 14 |
-| **TypeScript** | Type safety | Catches errors at compile time; critical for a multi-model data app; improves IDE experience |
-| **Prisma ORM** | Database interface | Type-safe queries generated from schema; auto-migration; excellent DX vs. raw SQL for a team new to PostgreSQL |
-| **PostgreSQL** | Relational database | Relational model suits our data (users → reports, future: matches); ACID compliance for data integrity |
-| **Supabase** | Database hosting + Storage | Free tier sufficient for development; provides PostgreSQL + file storage + web dashboard; no devops required |
-| **NextAuth.js v4** | Authentication | Production-grade auth for Next.js; credentials provider + JWT sessions; minimal boilerplate |
-| **bcryptjs** | Password hashing | Industry standard for password storage; 12 salt rounds provides good security without excessive compute cost |
-| **react-hot-toast** | User feedback | Lightweight toast notifications; no configuration overhead |
+| **React 18** | UI library | Industry standard; component model is a natural fit for a card-based listings UI; RSC support in Next.js 14 |
+| **TypeScript** | Type safety | Catches errors at compile time; enum types are shared between API routes and UI components; critical for a multi-model data app |
+| **Prisma ORM** | Database interface | Type-safe queries generated from schema; auto-migration; the generated client types align with our TypeScript interfaces throughout the app |
+| **PostgreSQL** | Relational database | Relational model suits our data (users → reports, future: matches); ACID compliance for data integrity; native enum support maps cleanly to our ItemCategory and TransportMode enums |
+| **Supabase** | Database hosting + Storage | Free tier sufficient for development; provides PostgreSQL + file storage + web dashboard; no devops overhead for a two-person student team |
+| **NextAuth.js v4** | Authentication | Production-grade auth for Next.js; credentials provider + JWT sessions; `getServerSession` integrates cleanly with App Router server components |
+| **bcryptjs** | Password hashing | Industry standard for password storage; 12 salt rounds provides strong security without excessive compute cost |
+| **react-hot-toast** | User feedback | Lightweight toast notifications for async form feedback; no configuration overhead |
 
 ---
 
 ## 7. Software Engineering Practices
 
-### Version Control — Git & GitHub
+### Version Control — Git
 
-We use Git and GitHub for all version control. Our workflow:
+We use **Git** for local version control across all development work. Our branching strategy:
 
-**Repository structure:**
-- `main` branch — stable, deployable code only
+- `main` branch — stable, deployable code only; only merged into at milestone boundaries
 - `dev` branch — integration branch for completed features
-- Feature branches — named `feature/<name>` (e.g. `feature/auth`, `feature/report-form`)
+- Feature branches — named `feature/<name>` (e.g. `feature/auth`, `feature/report-form`, `feature/matching`)
+
+Git gives us the ability to isolate work-in-progress from stable code, revert safely if a change breaks something, and review diffs before merging. We treat commits as a record of intent, not just a backup mechanism.
 
 **Commit message convention:**
+
 ```
 type(scope): short description
 
@@ -323,34 +390,41 @@ refactor(schema): rename dateTimeOfLoss to align with Prisma naming
 docs(readme): add system design diagrams for M1
 ```
 
-**Pull request process (for Milestone 2+ when codebase grows):**
-- Feature branch → PR → code review by partner → merge to `dev`
-- `dev` → PR → merge to `main` only when milestone is complete
+### Collaboration — GitHub
 
-### Iterative Development
+We use **GitHub** as our remote repository and collaboration platform. Beyond just hosting the code, GitHub provides:
 
-We follow an **agile, milestone-driven** approach. Each milestone produces a working end-to-end system that real users could use:
+- **Pull requests** — for Milestone 2 and beyond, all feature branches are merged via PRs with a code review from the other team member before merging to `dev`
+- **Issues** — we track bugs and upcoming work as GitHub Issues, linked to their resolving PRs
+- **Actions (CI)** — we plan to add a GitHub Actions workflow for Milestone 2 that runs linting (`eslint`) and type-checking (`tsc --noEmit`) on every push to `dev` and `main`, catching errors before they reach the deployed app
 
-- **Liftoff (Week 1–2):** Poster + video; project scoping; tech stack decision; Supabase setup
-- **Milestone 1 (Weeks 1–3):** Auth + lost item submission + browse = working prototype users can interact with
-- **Milestone 2 (Weeks 4–7):** Found item submission + matching system + dashboard = full core loop
-- **Milestone 3 (Weeks 8–11):** Notifications + admin + polish = production-ready system
+### Iterative Development — Agile Methodology
 
-This is "like this" not "not like this" (in reference to the Orbital iterative development slide): each milestone is a usable increment, not a disconnected piece.
+We follow an **agile, milestone-driven** approach rather than trying to design and build the entire system upfront. Each milestone produces a working, end-to-end system that real users could interact with:
+
+- **Milestone 1:** Auth + lost item submission + browse = working prototype
+- **Milestone 2:** Found item submission + matching system + dashboard = full core loop
+- **Milestone 3:** Notifications + admin + polish = production-ready system
+
+This approach has two practical benefits. First, it forces us to validate that the system actually works end-to-end early, rather than discovering integration problems late. Second, it means we always have something to demo — the Milestone 1 system is functional even without the matching feature that comes later.
+
+We scope each sprint to a concrete deliverable, and we accept that lower-priority features may be deferred, as long as the core loop is working.
 
 ### Code Organization
 
-- **Separation of concerns:** API logic in `/api` routes, UI in page components, shared logic in `/lib`
-- **Prisma singleton pattern:** prevents connection pool exhaustion in development hot-reload cycles
-- **Route groups:** `(auth)` and `(dashboard)` separate public and protected pages, each with their own layout, without affecting URL structure
-- **Component-level comments:** each file includes a path comment at the top for orientation
+- **Separation of concerns:** API logic lives in `/api` routes, UI lives in page components, shared business logic lives in `/lib`. The matching algorithm, for example, will live in `lib/matching.ts` — completely decoupled from any HTTP handling or UI rendering.
+- **Prisma singleton pattern:** `lib/prisma.ts` exports a single shared PrismaClient instance. In Next.js development, hot-reloading would otherwise create a new database connection on every file save, quickly exhausting the PostgreSQL connection pool. The singleton prevents this.
+- **Route groups:** `(auth)` and `(dashboard)` separate public and protected pages with their own layouts, without affecting the URL structure.
+- **Component-level path comments:** each file includes a comment indicating its path within the project, making it easier to orient yourself when jumping between files.
 
 ### Input Validation
 
-- Server-side validation on all API routes (never trust client input)
-- TypeScript ensures type correctness throughout the call chain
-- Prisma enum types enforce valid values at the database level
-- HTTP 400 for missing fields, 401 for unauthenticated, 409 for conflicts, 500 with logging for unexpected errors
+We validate data at multiple layers — never trusting that what arrives at the server matches what the form was supposed to send:
+
+- Client-side: controlled inputs prevent obvious bad values; submit is blocked if required fields are empty
+- API route: all required fields are checked for presence; type coercion is explicit
+- Prisma: enum types reject values not in the defined set; constraint violations throw typed errors
+- HTTP responses: 400 for missing/invalid fields, 401 for unauthenticated, 409 for conflicts (e.g. duplicate email), 500 with server-side logging for unexpected errors
 
 ---
 
@@ -358,31 +432,38 @@ This is "like this" not "not like this" (in reference to the Orbital iterative d
 
 ### What we have built for Milestone 1
 
-The following constitute our technical proof of concept — a working, integrated frontend + backend system:
-
 #### ✅ User Registration
+
 - `POST /api/register` — creates a new user with a bcrypt-hashed password in PostgreSQL
 - Validates presence of all fields, enforces minimum 8-character password, prevents duplicate emails
 - Returns 201 on success, appropriate 4xx on failure
 
 #### ✅ User Login
+
 - `POST /api/auth/[...nextauth]` — NextAuth credentials provider validates email + password
 - Returns JWT session cookie on success
 - Error messages distinguish between "no account found" and "wrong password"
 
 #### ✅ Protected Routes
-- `(dashboard)/layout.tsx` calls `getServerSession` server-side
-- Unauthenticated requests to any `/dashboard`, `/report-lost`, or `/browse` page are redirected to `/login`
+
+- `(dashboard)/layout.tsx` calls `getServerSession` server-side on every request
+- Unauthenticated requests to `/dashboard`, `/report-lost`, or `/browse` are immediately redirected to `/login`
 
 #### ✅ Lost Item Report Submission
+
 - `POST /api/items` — validates session, validates all required fields, writes to `LostItem` table
+- Enum fields validated against TypeScript/Prisma enum types
+- `datetime-local` string parsed to UTC before storage
 - Returns the created item with 201 status
 
 #### ✅ Browse with Filters
-- `GET /api/items?keyword=&category=&transportMode=` — dynamic Prisma WHERE clause
-- Server-rendered results page with URL-based filter state (shareable links)
+
+- `GET /api/items?keyword=&category=&transportMode=` — dynamic Prisma WHERE clause built from active params
+- Server-rendered results with URL-based filter state (shareable links)
+- Keyword matches across title, description, and location simultaneously using OR combinator
 
 #### ✅ Dashboard
+
 - Shows count of user's reports, total lost reports, total found reports
 - Lists user's 5 most recent reports with status badges
 
@@ -390,7 +471,7 @@ The following constitute our technical proof of concept — a working, integrate
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/transitfind.git
+git clone https://github.com/nichjnrr/transitfind.git
 cd transitfind
 
 # 2. Install dependencies
@@ -423,7 +504,57 @@ npm run dev
 
 ---
 
-## 9. Development Timeline
+## 9. UI Considerations
+
+### Design Philosophy
+
+TransitFind is designed to be usable by the full range of Singapore's commuter population — from tech-savvy students to elderly commuters who may be unfamiliar with web apps. This directly informs our design decisions, since a platform for lost items is most useful precisely when users are already anxious or frustrated.
+
+### Mobile-First Layout
+
+The majority of lost item reports will happen immediately after the commuter realizes something is missing — while still on the train, at the bus stop, or on the way home. This means most users will be on a phone. TransitFind's layout is designed mobile-first: the form, browse results, and navigation all reflow cleanly for narrow viewports without requiring pinch-to-zoom or horizontal scrolling. The same codebase serves both desktop and mobile through responsive CSS using a design token system defined in `globals.css`.
+
+### Design System and Visual Consistency
+
+Rather than styling each page independently, we use **CSS custom properties (design tokens)** defined in `globals.css` as the single source of truth for colors, spacing, and typography. For example:
+
+```css
+:root {
+  --color-primary: #0f62fe;
+  --color-surface: #ffffff;
+  --spacing-md: 1rem;
+  --radius-card: 8px;
+}
+```
+
+This means visual changes (e.g. adjusting the brand color) propagate across the entire app by changing one value, and every component reads from the same token set — guaranteeing consistency without manual coordination across files.
+
+### Color-Coded Transport Mode Tags
+
+On browse result cards, transport mode is displayed as a color-coded tag (e.g. MRT in blue, BUS in green, LRT in amber, INTERCHANGE in purple). This is a deliberate information density decision: a commuter scanning through 20 results can filter by eye far faster when the transport mode is visually distinct rather than reading plain text on every card.
+
+The same principle applies to **status badges** (OPEN in green, MATCHED in orange, CLOSED in grey) — the color communicates status without requiring the user to read the word.
+
+### Shared Navigation via Layout Component
+
+The `Navbar` component is rendered once in `(dashboard)/layout.tsx` and wraps all protected pages. This means the navigation is consistent across every page without any duplication — if we update the Navbar (add a link, change the logo), it updates everywhere simultaneously. Users always know where they are relative to the rest of the app.
+
+### Accessible Form Inputs
+
+Every form input has an associated `<label>` element linked via `htmlFor`/`id`. Enum fields use native `<select>` elements which screen readers handle correctly by default. Required fields are marked with both a visual indicator and the HTML `required` attribute, so both sighted users and assistive technology know what is mandatory before submitting.
+
+### Feedback on Async Actions
+
+Because submitting a report involves a `fetch()` call to the API, there is inherently a delay between the user clicking "Submit" and the confirmation. We handle this explicitly:
+
+- The submit button is disabled while the request is in-flight, preventing duplicate submissions
+- A loading state is shown to communicate that something is happening
+- On success, a toast notification confirms the submission without navigating away from the form (the user can submit another report immediately if needed)
+- On failure, a targeted error message tells the user what went wrong, not just that something failed
+
+---
+
+## 10. Development Timeline
 
 ### Sprint Plan
 
@@ -461,7 +592,7 @@ npm run dev
 
 ---
 
-## 10. Project Log
+## 11. Project Log
 
 | Date | Member | Task | Hours |
 |---|---|---|---|
