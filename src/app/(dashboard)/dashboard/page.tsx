@@ -69,7 +69,7 @@ export default async function DashboardPage() {
           + Report Lost Item
         </Link>
         <Link href="/browse" className="btn btn-blue">
-          Browse Found Items
+          Browse Lost Items
         </Link>
       </div>
 
