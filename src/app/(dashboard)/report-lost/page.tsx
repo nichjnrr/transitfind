@@ -127,7 +127,7 @@ export default function ReportLostPage() {
             <label className="form-label">Location / Station / Route *</label>
             <input
               className="form-input"
-              placeholder="e.g. EW14 Clementi MRT, or Bus 96 near Bedok"
+              placeholder="e.g. EW02 Tampines MRT, or Bus 96 near Bedok"
               value={form.location}
               onChange={(e) => set("location", e.target.value)}
               required
