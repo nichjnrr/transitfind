@@ -592,36 +592,4 @@ Because submitting a report involves a `fetch()` call to the API, there is inher
 
 ---
 
-## 11. Project Log
-
-| Date | Member | Task | Hours |
-|---|---|---|---|
-| 10 May | Both | Orbital Liftoff session, programme overview | 3 |
-| 11 May | Both | Ideation + user story discussion | 2 |
-| 12 May | Both | Q&A session attendance | 2 |
-| 12 May | A0320787X | Liftoff poster design (Canva) | 3 |
-| 12 May | A0320130H | Liftoff video recording and editing | 3 |
-| 13 May | Both | Tech stack research (NextAuth vs Clerk, Supabase vs PlanetScale) | 2 |
-| 14 May | Both | Supabase project setup + Prisma schema design | 2 |
-| 14 May | A0320787X | Poster submission (file naming, Google Drive, Skylab link) | 1 |
-| 14 May | A0320130H | Video submission | 1 |
-| 15 May | Both | Next.js project init, folder structure, GitHub repo setup | 2 |
-| 16 May | A0320787X | Mission Control #1 (Git/GitHub workshop) | 3 |
-| 16 May | A0320130H | Mission Control #1 (React workshop) | 3 |
-| 17 May | Both | Auth implementation (NextAuth + bcrypt + register API) | 4 |
-| 18 May | A0320787X | Lost item report form (client component + API route) | 4 |
-| 18 May | A0320130H | Browse page with server-side filters | 4 |
-| 19 May | Both | Dashboard page + Navbar component | 3 |
-| 20 May | A0320787X | Global CSS design system (tokens, utility classes) | 2 |
-| 20 May | A0320130H | Landing page design and implementation | 2 |
-| 21 May | Both | Integration testing (end-to-end flow testing) | 3 |
-| 22 May | Both | Bug fixes (session type augmentation, enum handling) | 2 |
-| 23 May | Both | README writing (this document) | 4 |
-| 24 May | Both | M1 review + final polish | 2 |
-| **Total** | | | **~57 hrs (both combined, ~28.5 each)** |
-
-> Target by M1 submission (1 Jun): ~35 hours each. Remaining hours will go towards continued feature development, testing, and further documentation before the deadline.
-
----
-
-*Last updated: May 2026 · TransitFind Team · NUS Orbital 26*
+*Last updated: June 2026 · TransitFind Team · NUS Orbital 26*
