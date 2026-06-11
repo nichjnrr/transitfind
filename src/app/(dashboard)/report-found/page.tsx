@@ -11,6 +11,7 @@ const TRANSPORT_MODES = ['MRT','BUS','LRT','INTERCHANGE'];
 export default function ReportFoundPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [charCount, setCharCount] = useState(0);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -63,7 +64,15 @@ export default function ReportFoundPage() {
 
         <div className="form-group">
           <label htmlFor="description">Description</label>
-          <textarea id="description" name="description" placeholder="Describe the item in detail..." value={form.description} onChange={handleChange} required rows={4} />
+          <textarea id="description" name="description" placeholder="Describe the item in detail..." value={form.description} 
+                onChange={(e) => {
+                    set("description", e.target.value);
+                    setCharCount(e.target.value.length);
+                }} required rows={4} />
+            <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "right", marginTop: 4 }}>
+                {charCount} / 500 characters
+            </p>
+          <p className="char-count">{charCount} / 500 characters</p>
         </div>
 
         <div className="form-row">
