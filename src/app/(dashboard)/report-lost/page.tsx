@@ -14,6 +14,7 @@ const TRANSPORT_MODES = ["MRT", "BUS", "LRT", "INTERCHANGE"];
 export default function ReportLostPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [charCount, setCharCount] = useState(0);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -69,7 +70,7 @@ export default function ReportLostPage() {
               className="form-input"
               placeholder="e.g. Blue Samsung Galaxy S24"
               value={form.title}
-              onChange={(e) => set("title", e.target.value)}
+              onChange={(e) => set("title", e.target.value) }
               required
             />
           </div>
@@ -81,10 +82,16 @@ export default function ReportLostPage() {
               placeholder="Describe the item in detail — colour, brand, markings, contents, etc."
               rows={4}
               value={form.description}
-              onChange={(e) => set("description", e.target.value)}
+              onChange={(e) => {
+                set("description", e.target.value);
+                setCharCount(e.target.value.length);
+              }}
               required
               style={{ resize: "vertical" }}
             />
+            <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "right", marginTop: 4 }}>
+            {charCount} / 500 characters
+            </p>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
