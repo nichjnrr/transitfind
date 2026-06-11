@@ -31,6 +31,11 @@ export default function ReportLostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (form.description.trim().length < 10) {
+      toast.error("Description must be at least 10 characters");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/items", {
         method: "POST",
