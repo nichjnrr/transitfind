@@ -30,6 +30,12 @@ export default function ReportFoundPage() {
     e.preventDefault();
     setLoading(true);
 
+    if (form.description.trim().length < 10) {
+        toast.error("Description must be at least 10 characters");
+        setLoading(false);
+    return;
+    }
+
     try {
       const res = await fetch('/api/found-items', {
         method: 'POST',
