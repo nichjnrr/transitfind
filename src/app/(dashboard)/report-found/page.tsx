@@ -113,7 +113,18 @@ export default function ReportFoundPage() {
           <input id="contactEmail" name="contactEmail" type="email" placeholder="owner can reach you at this email" value={form.contactEmail} onChange={handleChange} required />
         </div>
 
-        <button type="submit" className="btn-primary" disabled={loading}>
+        <button type="submit" className="btn-primary" 
+            disabled={
+                loading ||
+                !form.title ||
+                !form.description ||
+                !form.category ||
+                !form.transportMode ||
+                !form.location ||
+                !form.dateTimeOfLoss ||
+                !form.contactEmail
+             }
+        >
           {loading ? 'Submitting...' : 'Submit Found Item'}
         </button>
       </form>
