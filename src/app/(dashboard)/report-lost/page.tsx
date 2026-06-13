@@ -189,7 +189,16 @@ export default function ReportLostPage() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={loading}
+              disabled={
+                loading ||
+                !form.title ||
+                !form.description ||
+                !form.category ||
+                !form.transportMode ||
+                !form.location ||
+                !form.dateTimeOfLoss ||
+                !form.contactEmail
+              }
             >
               {loading ? "Submitting…" : "Submit Report"}
             </button>
