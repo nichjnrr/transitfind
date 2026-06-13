@@ -113,20 +113,52 @@ export default function ReportFoundPage() {
           <input id="contactEmail" name="contactEmail" type="email" placeholder="owner can reach you at this email" value={form.contactEmail} onChange={handleChange} required />
         </div>
 
-        <button type="submit" className="btn-primary" 
-            disabled={
-                loading ||
-                !form.title ||
-                !form.description ||
-                !form.category ||
-                !form.transportMode ||
-                !form.location ||
-                !form.dateTimeOfLoss ||
-                !form.contactEmail
-             }
+        <div
+            style={{
+            display: "flex",
+            gap: 12,
+            justifyContent: "flex-end",
+            marginTop: 8,
+            paddingTop: 16,
+            borderTop: "1px solid var(--border)",
+            }}
         >
-          {loading ? 'Submitting...' : 'Submit Found Item'}
-        </button>
+            <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => router.back()}
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                setForm({
+                    title: "",
+                    description: "",
+                    category: "",
+                    transportMode: "",
+                    location: "",
+                    dateTimeFound: "",
+                    contactEmail: "",
+                });
+                setCharCount(0);
+                }}
+            >
+            Clear Form
+            </button>
+
+            <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading || !form.title || !form.description || !form.category || !form.transportMode || !form.location || !form.dateTimeFound || !form.contactEmail}
+            >
+                {loading ? "Submitting…" : "Submit Report"}
+            </button>
+        </div>
+    
       </form>
     </div>
   );
