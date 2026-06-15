@@ -21,6 +21,12 @@ export default async function DashboardPage() {
     take: 5,
   });
 
+  const recentFoundItems = await prisma.foundItem.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+
   return (
     <div>
       <div style={{ marginBottom: 32 }}>
