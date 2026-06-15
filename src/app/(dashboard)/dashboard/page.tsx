@@ -120,9 +120,17 @@ export default async function DashboardPage() {
                     {new Date(item.dateTimeOfLoss).toLocaleDateString("en-SG")}
                   </div>
                 </div>
-                <span className={`tag tag-${item.status.toLowerCase()}`}>
-                  {item.status}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className={`tag tag-${item.status.toLowerCase()}`}>
+                    {item.status}
+                  </span>
+                  <Link
+                    href={`/items/${item.id}/matches`}
+                    style={{ fontSize: 13, color: "var(--accent-2)", fontWeight: 500 }}
+                  >
+                    View Matches →
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
