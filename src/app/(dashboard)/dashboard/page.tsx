@@ -72,9 +72,12 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 36 }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 36, flexWrap: "wrap" }}>
         <Link href="/report-lost" className="btn btn-primary">
           + Report Lost Item
+        </Link>
+        <Link href="/report-found" className="btn btn-primary">
+          + Report Found Item
         </Link>
         <Link href="/browse" className="btn btn-blue">
           Browse Lost Items
