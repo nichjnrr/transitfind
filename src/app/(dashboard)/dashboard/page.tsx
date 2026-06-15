@@ -115,9 +115,11 @@ export default async function DashboardPage() {
               >
                 <div>
                   <div style={{ fontWeight: 600 }}>{item.title}</div>
-                  <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
-                    {item.transportMode} · {item.location} ·{" "}
-                    {new Date(item.dateTimeOfLoss).toLocaleDateString("en-SG")}
+                  <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span className={`tag tag-${item.transportMode.toLowerCase()}`}>
+                      {item.transportMode}
+                    </span>
+                    · {item.location} · {new Date(item.dateTimeOfLoss).toLocaleDateString("en-SG")}
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
