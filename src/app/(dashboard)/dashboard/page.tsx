@@ -8,8 +8,9 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const userId = session!.user!.id as string;
 
-  const [lostCount, totalLost, totalFound] = await Promise.all([
+  const [lostCount, foundCount, totalLost, totalFound] = await Promise.all([
     prisma.lostItem.count({ where: { userId } }),
+    prisma.foundItem.count({ where: { userId } }),
     prisma.lostItem.count(),
     prisma.foundItem.count(),
   ]);
@@ -42,8 +43,9 @@ export default async function DashboardPage() {
       >
         {[
           { label: "Your Lost Reports", value: lostCount, color: "var(--accent)" },
-          { label: "Total Lost Reports", value: totalLost, color: "var(--accent-2)" },
-          { label: "Total Found Reports", value: totalFound, color: "var(--accent-3)" },
+          { label: "Your Found Reports", value: foundCount, color: "var(--accent-2)" },
+          { label: "Total Lost Reports", value: totalLost, color: "var(--accent-3)" },
+          { label: "Total Found Reports", value: totalFound, color: "var(--accent)" },
         ].map(({ label, value, color }) => (
           <div key={label} className="card">
             <div
