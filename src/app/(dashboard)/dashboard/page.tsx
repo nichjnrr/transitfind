@@ -34,7 +34,9 @@ export default async function DashboardPage() {
           Welcome back, {session?.user?.name?.split(" ")[0]} 👋
         </h1>
         <p style={{ color: "var(--text-muted)", marginTop: 4 }}>
-          Here&apos;s an overview of your activity on TransitFind.
+          Here&apos;s an overview of your activity on TransitFind. You have filed{" "}
+          <strong>{lostCount}</strong> lost {lostCount === 1 ? "report" : "reports"} and{" "}
+          <strong>{foundCount}</strong> found {foundCount === 1 ? "report" : "reports"}.
         </p>
       </div>
 
