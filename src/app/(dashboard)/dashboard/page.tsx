@@ -18,13 +18,13 @@ export default async function DashboardPage() {
   const recentItems = await prisma.lostItem.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 8,
   });
 
   const recentFoundItems = await prisma.foundItem.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: 8,
   });
 
   return (
