@@ -94,7 +94,7 @@ export default async function DashboardPage() {
             letterSpacing: "-0.01em",
           }}
         >
-          Your recent reports
+          Your recent lost reports
         </h2>
         {recentItems.length === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: "40px 24px" }}>
