@@ -136,6 +136,50 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+      {/* Recent found reports */}
+      <div style={{ marginTop: 36 }}>
+        <h2
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            marginBottom: 16,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Your recent found reports
+        </h2>
+        {recentFoundItems.length === 0 ? (
+          <div className="card" style={{ textAlign: "center", padding: "40px 24px" }}>
+            <p style={{ color: "var(--text-muted)", fontSize: 14 }}>
+              You haven&apos;t submitted any found item reports yet.
+            </p>
+            <Link href="/report-found" className="btn btn-primary" style={{ marginTop: 16 }}>
+              Report a Found Item
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {recentFoundItems.map((item) => (
+              <div
+                key={item.id}
+                className="card"
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px" }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600 }}>{item.title}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
+                    {item.transportMode} · {item.location} ·{" "}
+                    {new Date(item.dateTimeFound).toLocaleDateString("en-SG")}
+                  </div>
+                </div>
+                <span className={`tag tag-${item.status.toLowerCase()}`}>
+                  {item.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
