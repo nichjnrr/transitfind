@@ -187,18 +187,27 @@ export default function ReportLostPage() {
               Cancel
             </button>
             <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setForm({
+                  title: "",
+                  description: "",
+                  category: "",
+                  transportMode: "",
+                  location: "",
+                  dateTimeOfLoss: "",
+                  contactEmail: "",
+                });
+                setCharCount(0);
+              }}
+            >
+              Clear Form
+            </button>
+            <button
               type="submit"
               className="btn btn-primary"
-              disabled={
-                loading ||
-                !form.title ||
-                !form.description ||
-                !form.category ||
-                !form.transportMode ||
-                !form.location ||
-                !form.dateTimeOfLoss ||
-                !form.contactEmail
-              }
+              disabled={loading || !form.title || !form.description || !form.category || !form.transportMode || !form.location || !form.dateTimeOfLoss || !form.contactEmail}
             >
               {loading ? "Submitting…" : "Submit Report"}
             </button>
