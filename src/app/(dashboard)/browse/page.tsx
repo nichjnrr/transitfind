@@ -1,4 +1,5 @@
 // src/app/(dashboard)/browse/page.tsx
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ItemCategory, TransportMode } from "@prisma/client";
 
@@ -93,10 +94,10 @@ export default async function BrowsePage({ searchParams }: Props) {
         <button type="submit" className="btn btn-blue">
           Search
         </button>
-        {(keyword || category || transportMode) && (
-          <a href="/browse" className="btn btn-secondary">
+        {(keyword || category || transportMode) && ( 
+          <Link href="/browse" className="btn btn-secondary">
             Clear
-          </a>
+          </Link>
         )}
       </form>
 
