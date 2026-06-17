@@ -49,6 +49,7 @@ export default function ReportFoundPage() {
       }
       toast.success("Found item report submitted!");
       router.push("/dashboard");
+      router.refresh();
     } catch {
       toast.error("Something went wrong. Try again.");
     } finally {
@@ -92,6 +93,7 @@ export default function ReportFoundPage() {
                 setCharCount(e.target.value.length);
               }}
               required
+              maxLength={500}
               style={{ resize: "vertical" }}
             />
             <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "right", marginTop: 4 }}>
