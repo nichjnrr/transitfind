@@ -13,9 +13,11 @@
 | **Milestone** | 2 |
 
 ---
-##README link
+## README link
 ## https://docs.google.com/document/d/1joRJLQd3_i7S-QLq5XnaoodBbZiT1Y549icA8XDLJRY/edit?usp=sharing
 
+## PROJECT LOG
+## https://docs.google.com/spreadsheets/d/10LrXnFmFVbcTvBJIrhrohMw3OT4HYdDlwTLdo5bigOI/edit?usp=sharing
 ---
 
 *Last updated: June 2026 · TransitFind Team · NUS Orbital 26*
