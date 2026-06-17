@@ -136,7 +136,7 @@ export default function ReportFoundPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Location Found *</label>
+            <label className="form-label">Location / Station / Route *</label>
             <input
               className="form-input"
               placeholder="e.g. EW02 Tampines MRT, or Bus 65"
