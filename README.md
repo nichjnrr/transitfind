@@ -9,7 +9,7 @@
 | **Team Name** | TransitFind |
 | **Proposed Level of Achievement** | Apollo |
 | **Members** | A0320787X, A0320130H |
-| **Adviser** | TBC |
+| **Adviser** | Kah Ho |
 | **Milestone** | 2 |
 
 ---
