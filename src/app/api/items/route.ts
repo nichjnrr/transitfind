@@ -58,8 +58,21 @@ export async function POST(req: NextRequest) {
       contactEmail,
     } = body;
 
-    if (!title || !description || !category || !transportMode || !location || !dateTimeOfLoss || !contactEmail) {
+    if (
+      !title?.trim() ||
+      !description?.trim() ||
+      !category ||
+      !transportMode ||
+      !location?.trim() ||
+      !dateTimeOfLoss ||
+      !contactEmail?.trim()
+    ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const lossDate = new Date(dateTimeOfLoss);
+    if (lossDate > new Date()) {
+      return NextResponse.json({ error: "Date of loss cannot be in the future" }, { status: 400 });
     }
 
     const item = await prisma.lostItem.create({

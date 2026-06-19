@@ -46,7 +46,12 @@ export default function ReportFoundPage() {
       const res = await fetch("/api/found-items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          location: form.location.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
