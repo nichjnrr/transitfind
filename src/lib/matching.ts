@@ -3,6 +3,12 @@ import { LostItem, FoundItem } from "@prisma/client";
 
 // The maximum possible score, i used to convert to a percentage.
 const MAX_SCORE = 100;
+const WEIGHT_CATEGORY = 40;
+const WEIGHT_TRANSPORT_MODE = 20;
+const WEIGHT_LOCATION = 15;
+const WEIGHT_KEYWORDS = 15;
+const WEIGHT_RECENCY = 10;
+const RECENCY_WINDOW_DAYS = 14;
 
 // score match system along with the found item plus why it matched.
 export interface ScoredMatch {
@@ -34,13 +40,13 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
 
   // Category — strongest signal.
   if (lost.category === found.category) {
-    score += 40;
+    score += WEIGHT_CATEGORY;
     reasons.push("Same category");
   }
 
   // Transport mode.
   if (lost.transportMode === found.transportMode) {
-    score += 20;
+    score += WEIGHT_TRANSPORT_MODE;
     reasons.push("Same transport mode");
   }
 
@@ -49,7 +55,7 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
   const foundLocWords = tokenize(found.location);
   const sharedLocWords = foundLocWords.filter((w) => lostLocWords.has(w));
   if (sharedLocWords.length > 0) {
-    score += Math.min(sharedLocWords.length * 5, 15);
+    score += Math.min(sharedLocWords.length * 5, WEIGHT_LOCATION);
     reasons.push(`Shared location terms: ${Array.from(new Set(sharedLocWords)).slice(0, 2).join(", ")}`);
   }
 
@@ -59,14 +65,14 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
   const shared = foundWords.filter((w) => lostWords.has(w));
   const uniqueShared = Array.from(new Set(shared));
   if (uniqueShared.length > 0) {
-    score += Math.min(uniqueShared.length * 5, 15);
+    score += Math.min(uniqueShared.length * 5, );
     reasons.push(`Shared keywords: ${uniqueShared.slice(0, 3).join(", ")}`);
   }
 
   // Date proximity — found within 14 days of loss scores higher the closer it is.
   const gap = daysApart(lost.dateTimeOfLoss, found.dateTimeFound);
-  if (gap <= 14) {
-    const dateScore = Math.round(10 * (1 - gap / 14));
+  if (gap <= RECENCY_WINDOW_DAYS) {
+    const dateScore = Math.round(WEIGHT_RECENCY * (1 - gap / RECENCY_WINDOW_DAYS));
     if (dateScore > 0) {
       score += dateScore;
       reasons.push("Found around the time it was lost");
