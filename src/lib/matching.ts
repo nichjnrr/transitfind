@@ -96,6 +96,7 @@ export function findMatches(
   threshold = 30
 ): ScoredMatch[] {
   return foundItems
+    .filter((f) => isPlausibleMatch(lost, f))
     .map((f) => scoreMatch(lost, f))
     .filter((m) => m.score >= threshold)
     .sort((a, b) => b.score - a.score);
