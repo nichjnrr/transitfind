@@ -151,3 +151,16 @@ select.form-input {
 .tag-bus     { background: #e6f7ff; color: #096dd9; }
 .tag-lrt     { background: #f9f0ff; color: #722ed1; }
 .tag-interchange { background: #fff7e6; color: #d46b08; }
+
+/* Reveal row actions only on card hover */
+.report-card .row-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.report-card:hover .row-actions {
+  opacity: 1;
+}
+/* Keep actions visible when focused (keyboard accessibility) */
+.report-card:focus-within .row-actions {
+  opacity: 1;
+}
