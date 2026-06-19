@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | **Team Name** | TransitFind |
-| **Proposed Level of Achievement** | Apollo |
+| **Proposed Level of Achievement** | Gemini |
 | **Members** | A0320787X, A0320130H |
 | **Adviser** | Kah Ho |
 | **Milestone** | 2 |
