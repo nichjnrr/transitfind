@@ -113,7 +113,7 @@ export default async function DashboardPage() {
             {recentItems.map((item) => (
               <div
                 key={item.id}
-                className="card"
+                className="card report-card"
                 style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px" }}
               >
                 <div>
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                   >
                     View Matches →
                   </Link>
-                  <ItemActions itemId={item.id} status={item.status} />
+                  <ItemActions itemId={item.id} status={item.status} itemType="lost" />
                 </div>
               </div>
             ))}
@@ -178,9 +178,12 @@ export default async function DashboardPage() {
                     {new Date(item.dateTimeFound).toLocaleDateString("en-SG")}
                   </div>
                 </div>
-                <span className={`tag tag-${item.status.toLowerCase()}`}>
-                  {item.status}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className={`tag tag-${item.status.toLowerCase()}`}>
+                    {item.status}
+                  </span>
+                  <ItemActions itemId={item.id} status={item.status} itemType="found" />
+                </div>
               </div>
             ))}
           </div>
