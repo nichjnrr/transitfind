@@ -27,6 +27,11 @@ export async function POST(req: NextRequest) {
     if (!title || !description || !category || !transportMode || !location || !dateTimeFound || !contactEmail) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+ 
+    const foundDate = new Date(dateTimeFound);
+    if (foundDate > new Date()) {
+      return NextResponse.json({ error: "Date found cannot be in the future" }, { status: 400 });
+    }
 
     const foundItem = await prisma.foundItem.create({
       data: {
