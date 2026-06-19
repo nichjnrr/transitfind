@@ -73,8 +73,9 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
     }
   }
 
-  const percentage = Math.min(Math.round((score / MAX_SCORE) * 100), 100);
-  return { foundItem: found, score, percentage, reasons };
+  const cappedScore = Math.min(score, MAX_SCORE);
+  const percentage = Math.round((cappedScore / MAX_SCORE) * 100);
+  return { foundItem: found, score: cappedScore, percentage, reasons };
 }
 
 function isPlausibleMatch(lost: LostItem, found: FoundItem): boolean {
