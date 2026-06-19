@@ -58,7 +58,15 @@ export async function POST(req: NextRequest) {
       contactEmail,
     } = body;
 
-    if (!title || !description || !category || !transportMode || !location || !dateTimeOfLoss || !contactEmail) {
+    if (
+      !title?.trim() ||
+      !description?.trim() ||
+      !category ||
+      !transportMode ||
+      !location?.trim() ||
+      !dateTimeOfLoss ||
+      !contactEmail?.trim()
+    ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
