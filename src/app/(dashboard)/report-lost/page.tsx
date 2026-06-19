@@ -46,7 +46,12 @@ export default function ReportLostPage() {
       const res = await fetch("/api/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          location: form.location.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -55,6 +60,7 @@ export default function ReportLostPage() {
       }
       toast.success("Lost item report submitted!");
       router.push("/dashboard");
+      router.refresh();
     } catch {
       toast.error("Something went wrong. Try again.");
     } finally {
