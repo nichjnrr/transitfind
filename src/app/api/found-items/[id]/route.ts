@@ -52,16 +52,26 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { status } = body;
+    const { status, title, description, category, transportMode, location, dateTimeFound, contactEmail } = body;
 
     const allowed: ItemStatus[] = ["OPEN", "MATCHED", "CLOSED"];
-    if (!status || !allowed.includes(status)) {
+    if (status && !allowed.includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
+    const data: Record<string, unknown> = {};
+    if (status !== undefined) data.status = status;
+    if (title !== undefined) data.title = title;
+    if (description !== undefined) data.description = description;
+    if (category !== undefined) data.category = category;
+    if (transportMode !== undefined) data.transportMode = transportMode;
+    if (location !== undefined) data.location = location;
+    if (dateTimeFound !== undefined) data.dateTimeFound = new Date(dateTimeFound);
+    if (contactEmail !== undefined) data.contactEmail = contactEmail;
+
     const updated = await prisma.foundItem.update({
       where: { id: params.id },
-      data: { status },
+      data,
     });
     return NextResponse.json(updated);
   } catch (error) {
