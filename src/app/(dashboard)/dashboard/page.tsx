@@ -135,7 +135,20 @@ export default async function DashboardPage() {
                   >
                     View Matches →
                   </Link>
-                  <ItemActions itemId={item.id} status={item.status} itemType="lost" />
+                  <ItemActions
+                    itemType="lost"
+                    item={{
+                      id: item.id,
+                      title: item.title,
+                      description: item.description,
+                      category: item.category,
+                      transportMode: item.transportMode,
+                      location: item.location,
+                      contactEmail: item.contactEmail,
+                      status: item.status,
+                      dateTime: item.dateTimeOfLoss.toISOString(),
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -182,7 +195,20 @@ export default async function DashboardPage() {
                   <span className={`tag tag-${item.status.toLowerCase()}`}>
                     {item.status}
                   </span>
-                  <ItemActions itemId={item.id} status={item.status} itemType="found" />
+                  <ItemActions
+                    itemType="found"
+                    item={{
+                      id: item.id,
+                      title: item.title,
+                      description: item.description,
+                      category: item.category,
+                      transportMode: item.transportMode,
+                      location: item.location,
+                      contactEmail: item.contactEmail,
+                      status: item.status,
+                      dateTime: item.dateTimeFound.toISOString(),
+                    }}
+                  />
                 </div>
               </div>
             ))}
