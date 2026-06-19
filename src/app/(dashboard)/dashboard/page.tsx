@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import ItemActions from "@/components/ItemActions";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -134,6 +135,7 @@ export default async function DashboardPage() {
                   >
                     View Matches →
                   </Link>
+                  <ItemActions itemId={item.id} status={item.status} />
                 </div>
               </div>
             ))}
