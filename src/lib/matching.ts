@@ -80,6 +80,14 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
   return { foundItem: found, score, percentage, reasons };
 }
 
+function isPlausibleMatch(lost: LostItem, found: FoundItem): boolean {
+  if (lost.category === found.category) return true;
+
+  const lostWords = new Set(tokenize(`${lost.title} ${lost.description}`));
+  const foundWords = tokenize(`${found.title} ${found.description}`);
+  return foundWords.some((w) => lostWords.has(w));
+}
+
 // Rank all found items against a lost item, best first.
 // Only returns matches scoring above `threshold` (default 30).
 export function findMatches(
