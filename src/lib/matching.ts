@@ -45,15 +45,12 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
   }
 
   // Location text overlap.
-  const lostLoc = lost.location.toLowerCase();
-  const foundLoc = found.location.toLowerCase();
-  if (
-    lostLoc === foundLoc ||
-    lostLoc.includes(foundLoc) ||
-    foundLoc.includes(lostLoc)
-  ) {
-    score += 15;
-    reasons.push("Matching location");
+  const lostLocWords = new Set(tokenize(lost.location));
+  const foundLocWords = tokenize(found.location);
+  const sharedLocWords = foundLocWords.filter((w) => lostLocWords.has(w));
+  if (sharedLocWords.length > 0) {
+    score += Math.min(sharedLocWords.length * 5, 15);
+    reasons.push(`Shared location terms: ${Array.from(new Set(sharedLocWords)).slice(0, 2).join(", ")}`);
   }
 
   // Keyword overlap in title + description.
