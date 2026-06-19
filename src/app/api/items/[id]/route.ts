@@ -52,18 +52,30 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { status } = body;
+    const { status, title, description, category, transportMode, location, dateTimeOfLoss, contactEmail } = body;
 
-    // Only allow valid status values.
+    // status validity check 
     const allowed: ItemStatus[] = ["OPEN", "MATCHED", "CLOSED"];
-    if (!status || !allowed.includes(status)) {
+    if (status && !allowed.includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
+    // to help users with prefilling da item fields
+    const data: Record<string, unknown> = {};
+    if (status !== undefined) data.status = status;
+    if (title !== undefined) data.title = title;
+    if (description !== undefined) data.description = description;
+    if (category !== undefined) data.category = category;
+    if (transportMode !== undefined) data.transportMode = transportMode;
+    if (location !== undefined) data.location = location;
+    if (dateTimeOfLoss !== undefined) data.dateTimeOfLoss = new Date(dateTimeOfLoss);
+    if (contactEmail !== undefined) data.contactEmail = contactEmail;
+
     const updated = await prisma.lostItem.update({
       where: { id: params.id },
-      data: { status },
+      data,
     });
+    
     return NextResponse.json(updated);
   } catch (error) {
     console.error("PATCH item error:", error);
