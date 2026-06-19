@@ -31,6 +31,12 @@ export default function ReportLostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const lossDate = new Date(form.dateTimeOfLoss);
+    if (lossDate > new Date()) {
+      toast.error("Date of loss cannot be in the future");
+      setLoading(false);
+      return;
+    }
     if (form.description.trim().length < 10) {
       toast.error("Description must be at least 10 characters");
       setLoading(false);
@@ -40,7 +46,12 @@ export default function ReportLostPage() {
       const res = await fetch("/api/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          title: form.title.trim(),
+          description: form.description.trim(),
+          location: form.location.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -49,6 +60,7 @@ export default function ReportLostPage() {
       }
       toast.success("Lost item report submitted!");
       router.push("/dashboard");
+      router.refresh();
     } catch {
       toast.error("Something went wrong. Try again.");
     } finally {
