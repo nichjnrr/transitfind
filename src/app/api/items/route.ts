@@ -70,6 +70,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const lossDate = new Date(dateTimeOfLoss);
+    if (lossDate > new Date()) {
+      return NextResponse.json({ error: "Date of loss cannot be in the future" }, { status: 400 });
+    }
+
     const item = await prisma.lostItem.create({
       data: {
         title,
