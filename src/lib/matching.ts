@@ -100,3 +100,12 @@ export function findMatches(
     .filter((m) => m.score >= threshold)
     .sort((a, b) => b.score - a.score);
 }
+
+export function getConfidenceLevel(percentage: number): {
+  label: string;
+  color: "green" | "blue" | "amber";
+} {
+  if (percentage >= 70) return { label: "Strong match", color: "green" };
+  if (percentage >= 50) return { label: "Possible match", color: "blue" };
+  return { label: "Weak match", color: "amber" };
+}
