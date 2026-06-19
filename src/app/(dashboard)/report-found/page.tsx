@@ -31,6 +31,12 @@ export default function ReportFoundPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const foundDate = new Date(form.dateTimeFound);
+    if (foundDate > new Date()) {
+      toast.error("Date found cannot be in the future");
+      setLoading(false);
+      return;
+    }
     if (form.description.trim().length < 10) {
       toast.error("Description must be at least 10 characters");
       setLoading(false);
