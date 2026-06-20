@@ -65,7 +65,7 @@ export function scoreMatch(lost: LostItem, found: FoundItem): ScoredMatch {
   const shared = foundWords.filter((w) => lostWords.has(w));
   const uniqueShared = Array.from(new Set(shared));
   if (uniqueShared.length > 0) {
-    score += Math.min(uniqueShared.length * 5, );
+    score += Math.min(uniqueShared.length * 5, WEIGHT_KEYWORDS);
     reasons.push(`Shared keywords: ${uniqueShared.slice(0, 3).join(", ")}`);
   }
 
