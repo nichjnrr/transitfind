@@ -16,6 +16,9 @@ export default async function MatchesPage({
   const lostItem = await prisma.lostItem.findUnique({ where: { id } });
   if (!lostItem) notFound();
 
+  // Once a lost item is matched, we no longer offer to confirm further matches.
+  const alreadyMatched = lostItem.status === "MATCHED";
+
   // Candidate found items: all open found items, newest first.
   const foundItems = await prisma.foundItem.findMany({
     where: { status: "OPEN" },
@@ -41,6 +44,21 @@ export default async function MatchesPage({
           Found items that may match your lost <strong>{lostItem.title}</strong>.
         </p>
       </div>
+
+      {alreadyMatched && (
+        <div
+          className="card"
+          style={{
+            marginBottom: 16,
+            borderLeft: "4px solid var(--accent-3, #3C9A3C)",
+          }}
+        >
+          <p style={{ fontWeight: 600 }}>This report is already matched</p>
+          <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 6 }}>
+            You have confirmed a match for this item, so it is now marked as matched.
+          </p>
+        </div>
+      )}
 
       {matches.length === 0 ? (
         <div className="card" style={{ textAlign: "center", padding: "40px 24px" }}>
@@ -94,10 +112,25 @@ export default async function MatchesPage({
                 </p>
               )}
 
-              <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)" }}>
+              <div
+                style={{
+                  marginTop: 14,
+                  paddingTop: 14,
+                  borderTop: "1px solid var(--border)",
+                  display: "flex",
+                  gap: 10,
+                }}
+              >
                 <a href={`mailto:${foundItem.contactEmail}`} className="btn btn-primary">
                   Contact finder
                 </a>
+                {!alreadyMatched && (
+                  <ConfirmMatchButton
+                    lostItemId={lostItem.id}
+                    foundItemId={foundItem.id}
+                    score={percentage}
+                  />
+                )}
               </div>
             </div>
           ))}
