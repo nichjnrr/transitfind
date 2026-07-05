@@ -1,5 +1,4 @@
 // prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,7 +15,6 @@ model User {
   password      String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
   lostReports   LostItem[]
   foundReports  FoundItem[]
 }
@@ -34,9 +32,9 @@ model LostItem {
   contactEmail  String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-
   userId        String
   user          User          @relation(fields: [userId], references: [id])
+  matches       Match[]
 }
 
 model FoundItem {
@@ -52,9 +50,22 @@ model FoundItem {
   contactEmail  String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-
   userId        String
   user          User          @relation(fields: [userId], references: [id])
+  matches       Match[]
+}
+
+model Match {
+  id          String    @id @default(cuid())
+  lostItem    LostItem  @relation(fields: [lostItemId], references: [id], onDelete: Cascade)
+  lostItemId  String
+  foundItem   FoundItem @relation(fields: [foundItemId], references: [id], onDelete: Cascade)
+  foundItemId String
+  score       Int
+  confirmedBy String
+  createdAt   DateTime  @default(now())
+
+  @@unique([lostItemId, foundItemId])
 }
 
 enum ItemCategory {
