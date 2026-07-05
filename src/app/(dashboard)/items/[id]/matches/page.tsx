@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { findMatches } from "@/lib/matching";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ConfirmMatchButton from "@/components/ConfirmMatchButton";
 
 export default async function MatchesPage({
   params,
