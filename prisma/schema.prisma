@@ -18,7 +18,6 @@ model User {
   lostReports   LostItem[]
   foundReports  FoundItem[]
 }
-
 model LostItem {
   id            String        @id @default(cuid())
   title         String
