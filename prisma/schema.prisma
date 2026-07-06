@@ -27,7 +27,7 @@ model LostItem {
   transportMode TransportMode
   location      String
   dateTimeOfLoss DateTime
-  imageUrl      String?
+  imageUrls     String[]      @default([])
   status        ItemStatus    @default(OPEN)
   contactEmail  String
   createdAt     DateTime      @default(now())
@@ -45,7 +45,7 @@ model FoundItem {
   transportMode TransportMode
   location      String
   dateTimeFound DateTime
-  imageUrl      String?
+  imageUrls     String[]      @default([])
   status        ItemStatus    @default(OPEN)
   contactEmail  String
   createdAt     DateTime      @default(now())
