@@ -17,7 +17,11 @@ export default function ConfirmMatchButton({
   const [loading, setLoading] = useState(false);
 
   const confirm = async () => {
-    if (!window.confirm("Confirm this is your item? Both reports will be marked as matched.")) {
+    if (
+      !window.confirm(
+        "Send a claim to the finder that this is your item? They will need to approve it."
+      )
+    ) {
       return;
     }
     setLoading(true);
@@ -29,10 +33,10 @@ export default function ConfirmMatchButton({
       });
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Could not confirm match");
+        toast.error(data.error || "Could not send claim");
         return;
       }
-      toast.success("Match confirmed! Both reports marked as matched.");
+      toast.success("Claim sent. The finder will review it.");
       router.refresh();
     } catch {
       toast.error("Something went wrong");
@@ -43,7 +47,7 @@ export default function ConfirmMatchButton({
 
   return (
     <button onClick={confirm} disabled={loading} className="btn btn-secondary">
-      {loading ? "Confirming…" : "This is mine"}
+      {loading ? "Sending…" : "This is mine — send claim"}
     </button>
   );
 }
