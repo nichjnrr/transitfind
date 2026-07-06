@@ -18,6 +18,7 @@ model User {
   lostReports   LostItem[]
   foundReports  FoundItem[]
 }
+
 model LostItem {
   id            String        @id @default(cuid())
   title         String
@@ -55,14 +56,16 @@ model FoundItem {
 }
 
 model Match {
-  id          String    @id @default(cuid())
-  lostItem    LostItem  @relation(fields: [lostItemId], references: [id], onDelete: Cascade)
+  id          String      @id @default(cuid())
+  lostItem    LostItem    @relation(fields: [lostItemId], references: [id], onDelete: Cascade)
   lostItemId  String
-  foundItem   FoundItem @relation(fields: [foundItemId], references: [id], onDelete: Cascade)
+  foundItem   FoundItem   @relation(fields: [foundItemId], references: [id], onDelete: Cascade)
   foundItemId String
   score       Int
+  status      MatchStatus @default(PENDING)
   confirmedBy String
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@unique([lostItemId, foundItemId])
 }
@@ -91,4 +94,10 @@ enum ItemStatus {
   OPEN
   MATCHED
   CLOSED
+}
+
+enum MatchStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
