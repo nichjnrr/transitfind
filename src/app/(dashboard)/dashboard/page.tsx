@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ItemActions from "@/components/ItemActions";
+import MatchClaimActions from "@/components/MatchClaimActions";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -28,6 +29,13 @@ export default async function DashboardPage() {
     take: 8,
   });
 
+  // Pending match claims made by others against THIS user's found items.
+  const pendingClaims = await prisma.match.findMany({
+    where: { status: "PENDING", foundItem: { userId } },
+    include: { lostItem: true, foundItem: true },
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
     <div>
       <div style={{ marginBottom: 32 }}>
@@ -40,6 +48,40 @@ export default async function DashboardPage() {
           <strong>{foundCount}</strong> found {foundCount === 1 ? "report" : "reports"}.
         </p>
       </div>
+
+      {/* Pending claims on the user's found items */}
+      {pendingClaims.length > 0 && (
+        <div style={{ marginBottom: 36 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>
+            Someone thinks they found your item
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {pendingClaims.map((claim) => (
+              <div
+                key={claim.id}
+                className="card"
+                style={{ borderLeft: "4px solid var(--accent-2, #1E63D6)" }}
+              >
+                <p style={{ fontSize: 14 }}>
+                  A user believes your found report{" "}
+                  <strong>{claim.foundItem.title}</strong> matches their lost{" "}
+                  <strong>{claim.lostItem.title}</strong>{" "}
+                  <span style={{ color: "var(--text-muted)" }}>
+                    ({claim.score}% match)
+                  </span>
+                  .
+                </p>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 6 }}>
+                  Their description: {claim.lostItem.description}
+                </p>
+                <div style={{ marginTop: 12 }}>
+                  <MatchClaimActions matchId={claim.id} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div
