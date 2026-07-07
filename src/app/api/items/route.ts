@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       transportMode,
       location,
       dateTimeOfLoss,
-      imageUrl,
+      imageUrls,
       contactEmail,
     } = body;
 
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         transportMode,
         location,
         dateTimeOfLoss: new Date(dateTimeOfLoss),
-        imageUrl: imageUrl || null,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
         contactEmail,
         userId: session.user.id,
       },
