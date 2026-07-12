@@ -20,4 +20,4 @@
 ## https://docs.google.com/spreadsheets/d/10LrXnFmFVbcTvBJIrhrohMw3OT4HYdDlwTLdo5bigOI/edit?usp=sharing
 ---
 
-*Last updated: June 2026 · TransitFind Team · NUS Orbital 26*
+*Last updated: July 2026 · TransitFind Team · NUS Orbital 26*
