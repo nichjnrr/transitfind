@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { matchConfirmedEmail } from "@/lib/emails/matchConfirmed";
 
 // POST /api/items/[id]/confirm-match
 // The lost reporter claims a found item. This creates a PENDING match request.
@@ -25,8 +26,13 @@ export async function POST(
       return NextResponse.json({ error: "Missing foundItemId" }, { status: 400 });
     }
 
-    const lostItem = await prisma.lostItem.findUnique({ where: { id: lostItemId } });
-    const foundItem = await prisma.foundItem.findUnique({ where: { id: foundItemId } });
+    const lostItem = await prisma.lostItem.findUnique({
+      where: { id: lostItemId },
+      include: { user: { select: { name: true } } },
+    });
+    const foundItem = await prisma.foundItem.findUnique({
+      where: { id: foundItemId },
+    });
 
     if (!lostItem || !foundItem) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 });
@@ -54,6 +60,32 @@ export async function POST(
         status: "PENDING",
       },
     });
+
+    // Send email notification to the lost item owner
+    try {
+      const template = matchConfirmedEmail({
+        recipientName: lostItem.user?.name ?? "there",
+        lostItemTitle: lostItem.title,
+        foundItemTitle: foundItem.title,
+        matchPercentage: match.score,
+        contactEmail: foundItem.contactEmail,
+        itemUrl: `${process.env.NEXT_PUBLIC_APP_URL}/items/${lostItem.id}`,
+      });
+
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: lostItem.contactEmail,
+          ...template,
+        }),
+      });
+
+      console.log(`[email] Sent match-confirmed to ${lostItem.contactEmail}`);
+    } catch (emailErr) {
+      // Don't fail the whole request if email fails
+      console.error("Email send failed:", emailErr);
+    }
 
     return NextResponse.json(match, { status: 201 });
   } catch (error: any) {
