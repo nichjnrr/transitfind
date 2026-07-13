@@ -17,7 +17,6 @@ model User {
   updatedAt     DateTime  @updatedAt
   lostReports   LostItem[]
   foundReports  FoundItem[]
-  resetTokens   PasswordResetToken[]
 }
 
 model LostItem {
@@ -69,16 +68,6 @@ model Match {
   updatedAt   DateTime    @default(now()) @updatedAt
 
   @@unique([lostItemId, foundItemId])
-}
-
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  tokenHash String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime @default(now())
 }
 
 enum ItemCategory {

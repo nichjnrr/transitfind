@@ -5,10 +5,12 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -31,6 +33,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
   return (
     <div
       style={{
@@ -72,6 +75,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
         <div className="card">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -95,14 +99,6 @@ export default function LoginPage() {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
               />
-            </div>
-            <div style={{ textAlign: "right", marginTop: -4, marginBottom: 14 }}>
-              <Link
-                href="/forgot-password"
-                style={{ fontSize: 13, color: "var(--accent-2)" }}
-              >
-                Forgot password?
-              </Link>
             </div>
             <button
               type="submit"
