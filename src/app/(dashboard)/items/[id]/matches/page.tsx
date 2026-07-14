@@ -4,6 +4,7 @@ import { findMatches } from "@/lib/matching";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ConfirmMatchButton from "@/components/ConfirmMatchButton";
+import PhotoGallery from "@/components/PhotoGallery";
 
 export default async function MatchesPage({
   params,
@@ -101,6 +102,10 @@ export default async function MatchesPage({
               <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 12 }}>
                 {foundItem.description}
               </p>
+
+              <div style={{ marginTop: 10 }}>
+                <PhotoGallery urls={foundItem.imageUrls} />
+              </div>
 
               <p style={{ fontSize: 13, marginTop: 10 }}>
                 <strong>Found at:</strong> {foundItem.location}
