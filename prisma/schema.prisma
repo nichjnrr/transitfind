@@ -17,6 +17,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   lostReports   LostItem[]
   foundReports  FoundItem[]
+  role          UserRole  @default(USER)
 }
 
 model LostItem {
@@ -100,4 +101,9 @@ enum MatchStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }

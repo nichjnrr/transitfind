@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-
 export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/report-lost", label: "Report Lost" },
     { href: "/report-found", label: "Report Found" },
     { href: "/browse", label: "Browse Lost" },
+    // Admin link only for admins.
+    ...(session?.user?.role === "ADMIN"
+      ? [{ href: "/admin", label: "Admin" }]
+      : []),
   ];
-
   return (
     <nav
       style={{
@@ -47,7 +48,6 @@ export default function Navbar() {
             Transit<span style={{ color: "var(--accent-2)" }}>Find</span>
           </span>
         </Link>
-
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           {navLinks.map(({ href, label }) => (
             <Link
@@ -58,7 +58,12 @@ export default function Navbar() {
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeight: 500,
-                color: pathname === href ? "var(--accent-2)" : "var(--text-muted)",
+                color:
+                  pathname === href
+                    ? "var(--accent-2)"
+                    : label === "Admin"
+                    ? "var(--accent)"
+                    : "var(--text-muted)",
                 background: pathname === href ? "#e6f7ff" : "transparent",
                 transition: "all 0.15s",
               }}
@@ -66,7 +71,6 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
-
           {session ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 12 }}>
               <span
