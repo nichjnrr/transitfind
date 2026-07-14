@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ItemCategory, TransportMode } from "@prisma/client";
+import PhotoGallery from "@/components/PhotoGallery";
 
 interface Props {
   searchParams: {
@@ -94,7 +95,7 @@ export default async function BrowsePage({ searchParams }: Props) {
         <button type="submit" className="btn btn-blue">
           Search
         </button>
-        {(keyword || category || transportMode) && ( 
+        {(keyword || category || transportMode) && (
           <Link href="/browse" className="btn btn-secondary">
             Clear
           </Link>
@@ -138,6 +139,8 @@ export default async function BrowsePage({ searchParams }: Props) {
               >
                 {item.description}
               </p>
+
+              <PhotoGallery urls={item.imageUrls} />
 
               <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
                 📍 {item.location}
