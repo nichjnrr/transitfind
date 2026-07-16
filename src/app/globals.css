@@ -15,6 +15,40 @@
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
 }
 
+/* Dark mode */
+[data-theme="dark"] {
+  --bg: #0f0f0e;
+  --surface: #1a1a18;
+  --border: #2e2e2a;
+  --text: #f0efe8;
+  --text-muted: #9b9b93;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+[data-theme="dark"] .btn-secondary:hover {
+  background: var(--border);
+}
+
+[data-theme="dark"] .form-input {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .tag-open    { background: #003a8c; color: #91caff; }
+[data-theme="dark"] .tag-matched { background: #092b00; color: #95de64; }
+[data-theme="dark"] .tag-closed  { background: #1f1f1f; color: #8c8c8c; }
+[data-theme="dark"] .tag-mrt     { background: #5c0011; color: #ffadd2; }
+[data-theme="dark"] .tag-bus     { background: #003a8c; color: #91caff; }
+[data-theme="dark"] .tag-lrt     { background: #120338; color: #d3adf7; }
+[data-theme="dark"] .tag-interchange { background: #612500; color: #ffd591; }
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
