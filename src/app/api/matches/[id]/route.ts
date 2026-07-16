@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { itemClaimedEmail } from "@/lib/emails/itemClaimed";
 
 // PATCH /api/matches/[id]  body: { decision: "APPROVE" | "REJECT" }
 // The found reporter responds to a pending claim on their found item.
@@ -62,30 +61,6 @@ export async function PATCH(
       prisma.lostItem.update({ where: { id: match.lostItemId }, data: { status: "MATCHED" } }),
       prisma.foundItem.update({ where: { id: match.foundItemId }, data: { status: "MATCHED" } }),
     ]);
-
-    // Send email to the found item owner notifying them of the claim
-    try {
-      const template = itemClaimedEmail({
-        recipientName: match.foundItem.user?.name ?? "there",
-        foundItemTitle: match.foundItem.title,
-        claimerEmail: session.user.email!,
-        itemUrl: `${process.env.NEXT_PUBLIC_APP_URL}/items/${match.foundItemId}`,
-      });
-
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/email/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: match.foundItem.contactEmail,
-          ...template,
-        }),
-      });
-
-      console.log(`[email] Sent item-claimed to ${match.foundItem.contactEmail}`);
-    } catch (emailErr) {
-      // Don't fail the whole request if email fails
-      console.error("Email send failed:", emailErr);
-    }
 
     return NextResponse.json(updated);
   } catch (error) {
