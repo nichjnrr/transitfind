@@ -1,8 +1,7 @@
 // src/app/(dashboard)/browse/page.tsx
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ItemCategory, TransportMode } from "@prisma/client";
-import PhotoGallery from "@/components/PhotoGallery";
+import ShareButton from "@/components/ShareButton";
 
 interface Props {
   searchParams: {
@@ -96,9 +95,9 @@ export default async function BrowsePage({ searchParams }: Props) {
           Search
         </button>
         {(keyword || category || transportMode) && (
-          <Link href="/browse" className="btn btn-secondary">
+          <a href="/browse" className="btn btn-secondary">
             Clear
-          </Link>
+          </a>
         )}
       </form>
 
@@ -140,8 +139,6 @@ export default async function BrowsePage({ searchParams }: Props) {
                 {item.description}
               </p>
 
-              <PhotoGallery urls={item.imageUrls} />
-
               <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
                 📍 {item.location}
               </div>
@@ -151,6 +148,7 @@ export default async function BrowsePage({ searchParams }: Props) {
                   timeStyle: "short",
                 })}
               </div>
+
               <div
                 style={{
                   paddingTop: 10,
@@ -163,9 +161,12 @@ export default async function BrowsePage({ searchParams }: Props) {
                 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
                   Reported by {item.user.name}
                 </span>
-                <span className={`tag tag-${item.status.toLowerCase()}`}>
-                  {item.status}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <ShareButton itemId={item.id} itemTitle={item.title} />
+                  <span className={`tag tag-${item.status.toLowerCase()}`}>
+                    {item.status}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
