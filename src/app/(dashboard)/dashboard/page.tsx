@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ItemActions from "@/components/ItemActions";
 import MatchClaimActions from "@/components/MatchClaimActions";
+import ShareButton from "@/components/ShareButton";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -129,7 +130,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Recent reports */}
+      {/* Recent lost reports */}
       <div>
         <h2
           style={{
@@ -171,6 +172,7 @@ export default async function DashboardPage() {
                   <span className={`tag tag-${item.status.toLowerCase()}`}>
                     {item.status}
                   </span>
+                  <ShareButton itemId={item.id} itemTitle={item.title} />
                   <Link
                     href={`/items/${item.id}/matches`}
                     style={{ fontSize: 13, color: "var(--accent-2)", fontWeight: 500 }}
@@ -197,6 +199,7 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
       {/* Recent found reports */}
       <div style={{ marginTop: 36 }}>
         <h2
@@ -237,6 +240,7 @@ export default async function DashboardPage() {
                   <span className={`tag tag-${item.status.toLowerCase()}`}>
                     {item.status}
                   </span>
+                  <ShareButton itemId={item.id} itemTitle={item.title} />
                   <ItemActions
                     itemType="found"
                     item={{
