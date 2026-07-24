@@ -10,7 +10,7 @@
 | **Proposed Level of Achievement** | Gemini |
 | **Members** | A0320787X, A0320130H |
 | **Adviser** | Kah Ho |
-| **Milestone** | 2 |
+| **Milestone** | 3 |
 
 ---
 ## README link
