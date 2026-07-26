@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ItemCategory, TransportMode } from "@prisma/client";
 
-// POST /api/found-items — submit a found item report (nic: as per the tutorials i found)
+// POST /api/found-items — submit a found item report
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,13 +21,14 @@ export async function POST(req: NextRequest) {
       transportMode,
       location,
       dateTimeFound,
+      imageUrls,
       contactEmail,
     } = body;
 
     if (!title || !description || !category || !transportMode || !location || !dateTimeFound || !contactEmail) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
- 
+
     const foundDate = new Date(dateTimeFound);
     if (foundDate > new Date()) {
       return NextResponse.json({ error: "Date found cannot be in the future" }, { status: 400 });
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
         transportMode: transportMode as TransportMode,
         location,
         dateTimeFound: new Date(dateTimeFound),
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
         contactEmail,
         userId: session.user.id,
       },
