@@ -40,7 +40,7 @@ export default async function BrowsePage({ searchParams }: Props) {
     <div>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em" }}>
-          Browse Found Items
+          Browse Lost Items
         </h1>
         <p style={{ color: "var(--text-muted)", marginTop: 6, fontSize: 14 }}>
           {items.length} report{items.length !== 1 ? "s" : ""} found

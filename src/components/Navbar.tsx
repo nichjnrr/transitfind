@@ -12,7 +12,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/report-lost", label: "Report Lost" },
-    { href: "/browse", label: "Browse Found" },
+    { href: "/browse", label: "Browse Lost" },
   ];
 
   return (
