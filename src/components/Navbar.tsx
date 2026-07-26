@@ -12,7 +12,11 @@ export default function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/report-lost", label: "Report Lost" },
+    { href: "/report-found", label: "Report Found" },
     { href: "/browse", label: "Browse Lost" },
+    ...(session?.user?.role === "ADMIN"
+      ? [{ href: "/admin", label: "Admin" }]
+      : []),
   ];
 
   return (
