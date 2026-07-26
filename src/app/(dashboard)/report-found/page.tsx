@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import PhotoUpload from "@/components/PhotoUpload";
 
 const CATEGORIES = [
   "WALLET", "PHONE", "KEYS", "BAG", "CLOTHING",
@@ -15,6 +16,7 @@ export default function ReportFoundPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [charCount, setCharCount] = useState(0);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -51,6 +53,7 @@ export default function ReportFoundPage() {
           title: form.title.trim(),
           description: form.description.trim(),
           location: form.location.trim(),
+          imageUrls,
         }),
       });
       const data = await res.json();
@@ -182,6 +185,11 @@ export default function ReportFoundPage() {
             />
           </div>
 
+          <div className="form-group">
+            <label className="form-label">Photos</label>
+            <PhotoUpload urls={imageUrls} onChange={setImageUrls} />
+          </div>
+
           <div
             style={{
               display: "flex",
@@ -213,6 +221,7 @@ export default function ReportFoundPage() {
                   contactEmail: "",
                 });
                 setCharCount(0);
+                setImageUrls([]);
               }}
             >
               Clear Form
